@@ -9,11 +9,9 @@ import { Socket } from "socket.io";
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
+  @WebSocketServer() server;
   private typingUsers: string[] = [];
   private connectedUsers: string[] = [];
-
-
-  @WebSocketServer() server;
 
   @SubscribeMessage('register')
     handleRegisterEvent(@MessageBody() data: string, @ConnectedSocket() client: Socket): string{
@@ -21,22 +19,28 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if(this.connectedUsers.find(user => user.toLocaleLowerCase() === data.toLocaleLowerCase())){
       client.emit('registerResponse', false);
     }
-    else{this.connectedUsers.push(data); client.emit("registerResponse", true);}
+    else{
+      this.connectedUsers.push(data);
+
+      //User joins chat...
+      this.server.emit('userJoin', data)
+
+      client.emit("registerResponse", true);}
     return "done";
     }
 
   @SubscribeMessage('unregister')
-  handleUnregisterEvent(@MessageBody() data: string): string {
+  handleUnregisterEvent(@MessageBody() userName: string): string {
 
-    var index = this.connectedUsers.indexOf(data);
+    var index = this.connectedUsers.indexOf(userName);
     if (index !== -1) {this.connectedUsers.splice(index, 1); console.log('removed');}
 
     //Send deleted to clients for removal in online users
+    this.server.emit('userLeave', userName)
+
 
     return "deleted";
-
   }
-
 
   @SubscribeMessage('message')
   handleChatEvent(@MessageBody() data: string): string {
@@ -46,30 +50,31 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('typing')
   handleTypeEvent(@MessageBody() data: any): string {
-    
+
     if(data.typing){
       this.typingUsers.push(data.user);
     }
     else{
-      console.log("removed?");
-      console.log(this.typingUsers);
-
       var index = this.typingUsers.indexOf(data.user);
       if (index !== -1) {this.typingUsers.splice(index, 1);}
-
-      console.log(this.typingUsers);
     }
     this.server.emit('typers', this.typingUsers.slice(0,5));
 
     return "Done";
   }
 
-//Ellers lav to handlers - en som fjerner den der ikke skriver fra listen og en som tilføjer en som skriver til listen... :)
+  @SubscribeMessage('requestUsers')
+  handleUserRequestEvent(@ConnectedSocket() client: Socket): string{
+    client.emit('responseUsers', this.connectedUsers);
+    return "clients emitted";
+  }
 
   handleConnection(client: any, ...args: any[]): any {
+    //console.log("connected:" + client.id);
   }
 
   handleDisconnect(client: any): any {
+    //console.log("disconnected:" + client.id);
   }
 
 }
