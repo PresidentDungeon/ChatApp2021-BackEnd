@@ -5,6 +5,7 @@ import {
   WebSocketGateway, WebSocketServer
 } from "@nestjs/websockets";
 import { Socket } from "socket.io";
+import { Message } from "./shared/message";
 
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -12,6 +13,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server;
   private typingUsers: string[] = [];
   private connectedUsers: string[] = [];
+  private messages: Message[] = [];
 
   @SubscribeMessage('register')
     handleRegisterEvent(@MessageBody() data: string, @ConnectedSocket() client: Socket): string{
@@ -38,14 +40,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     //Send deleted to clients for removal in online users
     this.server.emit('userLeave', userName)
 
-
     return "deleted";
   }
 
   @SubscribeMessage('message')
-  handleChatEvent(@MessageBody() data: string): string {
-    this.server.emit('messages', data);
-    return 'Hello' + data;
+  handleChatEvent(@MessageBody() message: Message): string {
+    this.server.emit('messages', message);
+    return 'Hello' + message;
   }
 
   @SubscribeMessage('typing')
