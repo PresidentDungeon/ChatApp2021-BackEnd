@@ -35,7 +35,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleUnregisterEvent(@MessageBody() userName: string): string {
 
     var index = this.connectedUsers.indexOf(userName);
-    if (index !== -1) {this.connectedUsers.splice(index, 1); console.log('removed');}
+    if (index !== -1) {this.connectedUsers.splice(index, 1);}
 
     //Send deleted to clients for removal in online users
     this.server.emit('userLeave', userName)
