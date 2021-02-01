@@ -11,6 +11,10 @@ export class ChatService {
     this.storedMessages.push(message);
   }
 
+  getAllMessages(): Message[]{
+    return this.storedMessages;
+  }
+
   addTypingUser(user: string){
     this.typingUsers.push(user);
   }

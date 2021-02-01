@@ -1,11 +1,11 @@
 import {
-  ConnectedSocket,
   MessageBody, OnGatewayConnection, OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway, WebSocketServer
 } from "@nestjs/websockets";
 
 import { UserService } from "../user/shared/user.service";
+import { User } from "../shared/user";
 
 @WebSocketGateway()
 export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -15,9 +15,9 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(private userService: UserService) {}
 
   @SubscribeMessage('unregister')
-  handleUnregisterEvent(@MessageBody() username: string): boolean {
-    let success: boolean = this.userService.unregisterUser(username);
-    if(success){this.server.emit('userLeave', username); return true;}
+  handleUnregisterEvent(@MessageBody() user: User): boolean {
+    let success: boolean = this.userService.unregisterUser(user);
+    if(success){this.server.emit('userLeave', user); return true;}
     else{return false;}
   }
 

@@ -10,10 +10,10 @@ export class UserController {
   @Post('register')
   RegisterUser(@Body() data: any): any {
 
-    let result: boolean = this.userService.registerUser(data.username);
+    let result: boolean = this.userService.registerUser(data.user);
 
     if(result){
-      this.server.server.emit('userJoin', data.username);
+      this.server.server.emit('userJoin', data.user);
       return {created: true, errorMessage: ''};
     }
 
@@ -22,8 +22,8 @@ export class UserController {
 
   @Post('unregister')
   UnregisterUser(@Body() data: any): boolean{
-    let success: boolean = this.userService.unregisterUser(data.username);
-    if(success){this.server.server.emit('userLeave', data.username); return true;}
+    let success: boolean = this.userService.unregisterUser(data.user);
+    if(success){this.server.server.emit('userLeave', data.user); return true;}
     else{return false;}
   }
 

@@ -1,5 +1,7 @@
+import { User } from "./user";
+
 export interface Message{
   message: string;
-  user: string;
+  user: User;
   timestamp: Date;
 }
