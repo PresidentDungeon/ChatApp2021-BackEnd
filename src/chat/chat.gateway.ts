@@ -7,6 +7,7 @@ import {
 
 import { Message } from "../shared/message";
 import { ChatService } from "./shared/chat.service";
+import { Socket } from "socket.io";
 
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -32,8 +33,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     //console.log("connected:" + client.id);
   }
 
-  handleDisconnect(client: any): any {
+  handleDisconnect(client: Socket): any {
     //console.log("disconnected:" + client.id);
+
+    // var user: User = this.userService.getUserByClient(client);
+    // if (user) {
+    //   this.chatService.removeTypingUser(user.username);
+    //   this.server.emit('typers', this.chatService.getRecentTypingUsers());
+    // }
   }
 
 }
