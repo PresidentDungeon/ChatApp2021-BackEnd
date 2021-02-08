@@ -19,14 +19,16 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('register')
   handleRegisterEvent(@MessageBody() user: User, @ConnectedSocket() client: Socket): void{
 
-    let result: boolean = this.userService.registerUser(user, client.id);
+    user.id = client.id;
+
+    let result: boolean = this.userService.registerUser(user);
 
     if(result){
       this.server.emit('userJoin', user);
-      client.emit('registerResponse', {created: true, errorMessage: ''})
+      client.emit('registerResponse', {created: true, errorMessage: '', user: user})
     }
 
-    else{client.emit('registerResponse', {created: false, errorMessage: 'User with same name already exists'})}
+    else{client.emit('registerResponse', {created: false, errorMessage: 'User with same name already exists', user: null})}
   }
 
   @SubscribeMessage('unregister')
