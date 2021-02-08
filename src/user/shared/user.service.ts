@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { User } from "../../shared/user";
-import { Socket } from "socket.io";
 
 @Injectable()
 export class UserService {
@@ -8,7 +7,7 @@ export class UserService {
   private connectedUsers: Map<string, User> = new Map<string, User>();
 
 
-  registerUser(userToRegister: User, client: Socket): boolean{
+  registerUser(userToRegister: User, id: string): boolean{
 
     var connectedUsers: User[] = Array.from(this.connectedUsers.values());
 
@@ -16,14 +15,14 @@ export class UserService {
       return false;
     }
 
-    else{this.connectedUsers.set(client.id, userToRegister); return true;}
+    else{this.connectedUsers.set(id, userToRegister); return true;}
   }
 
-  unregisterUser(client: Socket): any{
+  unregisterUser(id: string): any{
 
-    let user: User = this.connectedUsers.get(client.id);
+    let user: User = this.connectedUsers.get(id);
 
-    if (user) {this.connectedUsers.delete(client.id); return {removed: true, user: user};}
+    if (user) {this.connectedUsers.delete(id); return {removed: true, user: user};}
     return {removed: false, user: null};
   }
 
@@ -41,8 +40,8 @@ export class UserService {
     return false;
   }
 
-  getUserByClient(client: Socket): User{
-    return this.connectedUsers.get(client.id);
+  getUserByClient(id: string): User{
+    return this.connectedUsers.get(id);
   }
 
 }

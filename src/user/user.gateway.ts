@@ -19,7 +19,7 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('register')
   handleRegisterEvent(@MessageBody() user: User, @ConnectedSocket() client: Socket): void{
 
-    let result: boolean = this.userService.registerUser(user, client);
+    let result: boolean = this.userService.registerUser(user, client.id);
 
     if(result){
       this.server.emit('userJoin', user);
@@ -32,7 +32,7 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('unregister')
   handleUnregisterEvent(@ConnectedSocket() client: Socket): void {
 
-    let success: any = this.userService.unregisterUser(client);
+    let success: any = this.userService.unregisterUser(client.id);
     if(success.removed){this.server.emit('userLeave', success.user);}
   }
 
@@ -44,7 +44,7 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
     //console.log("disconnected:" + client.id);
 
 
-    // let success: any = this.userService.unregisterUser(client);
+    // let success: any = this.userService.unregisterUser(client.id);
     // if(success.removed){this.server.emit('userLeave', success.user);}
   }
 
