@@ -12,16 +12,26 @@ export class UserService {
       return false;
     }
 
-    else{this.connectedUsers.push(userToRegister); console.log(this.connectedUsers); return true;}
+    else{this.connectedUsers.push(userToRegister); return true;}
   }
 
   unregisterUser(id: string): any{
+    console.log(this.connectedUsers);
+    let user: User = this.connectedUsers.find(user => user.id === id);
+
+    if (user) {this.connectedUsers = this.connectedUsers.filter(c => c.username !== user.username); console.log(this.connectedUsers); return {removed: true, user: user};}
+    return {removed: false, user: null};
+  }
+
+  unregisterAllUsersByClient(id: string): any{
 
     let user: User = this.connectedUsers.find(user => user.id === id);
 
     if (user) {this.connectedUsers = this.connectedUsers.filter(c => c.id !== id); return {removed: true, user: user};}
     return {removed: false, user: null};
   }
+
+
 
   getConnectedUsers(): User[]{
     return this.connectedUsers;

@@ -8,13 +8,15 @@ import {
 import { Message } from "../shared/message";
 import { ChatService } from "./shared/chat.service";
 import { Socket } from "socket.io";
+import { User } from "../shared/user";
+import { UserService } from "../user/shared/user.service";
 
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @WebSocketServer() server;
 
-  constructor(private chatService: ChatService) {}
+  constructor(private chatService: ChatService, private userService: UserService) {}
 
   @SubscribeMessage('message')
   handleChatEvent(@MessageBody() message: Message): void {
@@ -36,11 +38,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleDisconnect(client: Socket): any {
     //console.log("disconnected:" + client.id);
 
-    // var user: User = this.userService.getUserByClient(client);
-    // if (user) {
-    //   this.chatService.removeTypingUser(user.username);
-    //   this.server.emit('typers', this.chatService.getRecentTypingUsers());
-    // }
+    var user: User = this.userService.getUserByClient(client.id);
+    if (user) {
+      this.chatService.removeTypingUser(user.username);
+      this.server.emit('typers', this.chatService.getRecentTypingUsers());
+    }
   }
 
 }
