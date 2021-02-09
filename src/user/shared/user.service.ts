@@ -31,8 +31,6 @@ export class UserService {
     return {removed: false, user: null};
   }
 
-
-
   getConnectedUsers(): User[]{
     return this.connectedUsers;
   }
