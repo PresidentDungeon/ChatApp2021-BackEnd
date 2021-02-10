@@ -7,14 +7,14 @@ import {
 
 import { Message } from "../shared/message";
 import { ChatService } from "./shared/chat.service";
-import { Socket } from "socket.io";
+import { Server, Socket } from "socket.io";
 import { User } from "../shared/user";
 import { UserService } from "../user/shared/user.service";
 
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
-  @WebSocketServer() server;
+  @WebSocketServer() server: Server;
 
   constructor(private chatService: ChatService, private userService: UserService) {}
 
@@ -31,8 +31,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.emit('typers', this.chatService.getRecentTypingUsers());
   }
 
-  handleConnection(client: any, ...args: any[]): any {
+  handleConnection(client: Socket, ...args: any[]): any {
     //console.log("connected:" + client.id);
+    //client.join
   }
 
   handleDisconnect(client: Socket): any {
