@@ -47,4 +47,8 @@ export class UserService {
     return this.connectedUsers.find(user => user.id === id);
   }
 
+  getActiveUsersCount(): number{
+    return this.connectedUsers.length;
+  }
+
 }

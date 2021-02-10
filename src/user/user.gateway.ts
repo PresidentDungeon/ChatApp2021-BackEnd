@@ -33,6 +33,7 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 
       this.server.emit('userJoin', user);
+      this.server.emit('activeUsers', this.userService.getActiveUsersCount());
       client.emit('registerResponse', {created: true, errorMessage: '', user: user})
     }
 
@@ -43,7 +44,10 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleUnregisterEvent(@ConnectedSocket() client: Socket): void {
 
     let success: any = this.userService.unregisterUser(client.id);
-    if(success.removed){this.server.emit('userLeave', success.user);}
+    if(success.removed){
+      this.server.emit('userLeave', success.user);
+      this.server.emit('activeUsers', this.userService.getActiveUsersCount());
+    }
   }
 
   handleConnection(client: any, ...args: any[]): any {
@@ -54,7 +58,7 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
     //console.log("disconnected:" + client.id);
 
     let success: any = this.userService.unregisterAllUsersByClient(client.id);
-    if(success.removed){this.server.emit('userLeave', success.user);}
+    if(success.removed){this.server.emit('userLeave', success.user); this.server.emit('activeUsers', this.userService.getActiveUsersCount());}
   }
 
 }

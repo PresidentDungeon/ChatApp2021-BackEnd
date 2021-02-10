@@ -12,6 +12,11 @@ export class UserController {
     return this.userService.getConnectedUsers();
   }
 
+  @Get('amount')
+  GetConnectedUsersAmount(): number{
+    return this.userService.getActiveUsersCount();
+  }
+
   @Post()
   SearchUser(@Body() data: any): boolean{
     return this.userService.checkForExistingUser(data.user.username);
