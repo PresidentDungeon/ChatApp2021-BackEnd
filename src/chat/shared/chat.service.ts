@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Message } from "../../shared/message";
+import { User } from "../../shared/user";
 
 @Injectable()
 export class ChatService {
 
-  private typingUsers: string[] = [];
+  private typingUsers: User[] = [];
   private storedMessages: Message[] = [];
 
   addMessage(message: Message): void{
@@ -17,17 +18,21 @@ export class ChatService {
     return message;
   }
 
-  addTypingUser(user: string){
+  addTypingUser(user: User){
     this.typingUsers.push(user);
   }
 
-  removeTypingUser(user: string){
+  removeTypingUser(id: string){
+
+    var user = this.typingUsers.find(u => u.id === id);
     var index = this.typingUsers.indexOf(user);
     if (index !== -1) {this.typingUsers.splice(index, 1);}
   }
 
-  getRecentTypingUsers(): string[]{
-    return this.typingUsers.slice(0,5);
+  getRecentTypingUsers(room: string): User[]{
+
+    let typingUsers: User[] = this.typingUsers.filter(user => user.room === room);
+    return typingUsers.slice(0,5);
   }
 
 }

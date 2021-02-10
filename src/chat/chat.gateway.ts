@@ -25,10 +25,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('typing')
-  handleTypeEvent(@MessageBody() data: any): void {
+  handleTypeEvent(@MessageBody() data: any, @ConnectedSocket() client: Socket): void {
     if(data.typing){this.chatService.addTypingUser(data.user);}
-    else{this.chatService.removeTypingUser(data.user);}
-    this.server.emit('typers', this.chatService.getRecentTypingUsers());
+    else{this.chatService.removeTypingUser(client.id);}
+    this.server.in(data.user.room).emit('typers', this.chatService.getRecentTypingUsers(data.user.room));
   }
 
   handleConnection(client: Socket, ...args: any[]): any {
@@ -42,7 +42,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     var user: User = this.userService.getUserByClient(client.id);
     if (user) {
       this.chatService.removeTypingUser(user.username);
-      this.server.emit('typers', this.chatService.getRecentTypingUsers());
+      this.server.in(user.room).emit('typers', this.chatService.getRecentTypingUsers(user.room));
     }
   }
 
