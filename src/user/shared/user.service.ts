@@ -8,7 +8,7 @@ export class UserService {
 
   registerUser(userToRegister: User): boolean{
 
-    if(this.connectedUsers.find(user => user.username.toLocaleLowerCase() === userToRegister.username.toLocaleLowerCase())){
+    if(this.connectedUsers.find(user => user.username.toLocaleLowerCase() === userToRegister.username.toLocaleLowerCase() && user.room === userToRegister.room)){
       return false;
     }
 
@@ -16,10 +16,11 @@ export class UserService {
   }
 
   unregisterUser(id: string): any{
-    console.log(this.connectedUsers);
-    let user: User = this.connectedUsers.find(user => user.id === id);
 
-    if (user) {this.connectedUsers = this.connectedUsers.filter(c => c.username !== user.username); return {removed: true, user: user};}
+    let user: User = this.connectedUsers.find(user => user.id === id);
+    let index: number = this.connectedUsers.indexOf(user);
+
+    if(index !== -1){this.connectedUsers.splice(index, 1); return {removed: true, user: user};}
     return {removed: false, user: null};
   }
 
@@ -31,7 +32,11 @@ export class UserService {
     return {removed: false, user: null};
   }
 
-  getConnectedUsers(): User[]{
+  getConnectedUsers(room: string): User[]{
+    return this.connectedUsers.filter((user) => user.room === room);
+  }
+
+  getAllConnectedUsers(): User[]{
     return this.connectedUsers;
   }
 

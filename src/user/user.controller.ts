@@ -7,14 +7,14 @@ export class UserController {
 
   constructor(private userService: UserService, private server: UserGateway) {}
 
-  @Get()
-  GetConnectedUsers(): any{
-    return this.userService.getConnectedUsers();
-  }
-
   @Get('amount')
   GetConnectedUsersAmount(): number{
     return this.userService.getActiveUsersCount();
+  }
+
+  @Post('users')
+  GetConnectedUsers(@Body() data: any): any{
+    return this.userService.getConnectedUsers(data.room);
   }
 
   @Post()

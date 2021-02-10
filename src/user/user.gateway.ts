@@ -20,19 +20,29 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleRegisterEvent(@MessageBody() user: User, @ConnectedSocket() client: Socket): void{
 
     user.id = client.id;
+
+    //console.log("Before register", this.userService.getAllConnectedUsers());
+
+
     let existingUser: User = this.userService.getUserByClient(client.id);
     let result: boolean = this.userService.registerUser(user);
+
+    //console.log("After register", this.userService.getAllConnectedUsers());
 
 
     if(result){
 
       if(existingUser){
         let success: any = this.userService.unregisterUser(client.id);
-        if(success.removed){this.server.emit('userLeave', success.user);}
+        if(success.removed){this.server.in(existingUser.room).emit('userLeave', success.user);
+          //console.log("After delete", this.userService.getAllConnectedUsers());
+        client.leaveAll();
+
+        }
       }
 
-
-      this.server.emit('userJoin', user);
+      client.join(user.room.toLowerCase());
+      this.server.in(user.room).emit('userJoin', user);
       this.server.emit('activeUsers', this.userService.getActiveUsersCount());
       client.emit('registerResponse', {created: true, errorMessage: '', user: user})
     }
@@ -49,6 +59,7 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.server.emit('activeUsers', this.userService.getActiveUsersCount());
     }
   }
+
 
   handleConnection(client: any, ...args: any[]): any {
   //  console.log("connected:" + client.id);

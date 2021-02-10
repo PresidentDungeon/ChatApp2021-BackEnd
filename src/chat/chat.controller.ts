@@ -1,4 +1,4 @@
-import { Controller, Get } from "@nestjs/common";
+import { Body, Controller, Get, Post } from "@nestjs/common";
 import { ChatService } from "./shared/chat.service";
 import { ChatGateway } from "./chat.gateway";
 
@@ -8,9 +8,9 @@ export class ChatController {
 
   constructor(private chatService: ChatService, private server: ChatGateway) {}
 
-  @Get()
-  GetMessages(): any{
-    return this.chatService.getAllMessages();
+  @Post()
+  GetMessages(@Body() data: any): any{
+    return this.chatService.getAllMessages(data.room);
   }
 
 }
