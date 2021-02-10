@@ -19,7 +19,7 @@ export class UserService {
     console.log(this.connectedUsers);
     let user: User = this.connectedUsers.find(user => user.id === id);
 
-    if (user) {this.connectedUsers = this.connectedUsers.filter(c => c.username !== user.username); console.log(this.connectedUsers); return {removed: true, user: user};}
+    if (user) {this.connectedUsers = this.connectedUsers.filter(c => c.username !== user.username); return {removed: true, user: user};}
     return {removed: false, user: null};
   }
 
