@@ -7,5 +7,6 @@ import { UserService } from "../user/shared/user.service";
 @Module({
   providers: [ChatGateway, ChatService, UserService],
   controllers: [ChatController],
+  exports: [ChatService]
 })
 export class ChatModule {}

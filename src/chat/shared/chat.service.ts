@@ -13,7 +13,6 @@ export class ChatService {
   }
 
   getAllMessages(room: string): Message[]{
-
     let message: Message[] = this.storedMessages.filter((c) => c.user.room.toLowerCase() === room.toLowerCase());
     return message;
   }
