@@ -5,11 +5,9 @@ import {
   WebSocketGateway, WebSocketServer
 } from "@nestjs/websockets";
 
-import { UserService } from "../../core/services/user.service";
 import { User } from "../../core/models/user";
 import { Socket } from "socket.io";
 import { Message } from "../../core/models/message";
-import { ChatService } from "../../core/services/chat.service";
 import { Inject } from "@nestjs/common";
 import { IChatService, IChatServiceProvider } from "../../core/primary-ports/chat.service.interface";
 import { IUserService, IUserServiceProvider } from "../../core/primary-ports/user.service.interface";
