@@ -5,11 +5,11 @@ import {
   WebSocketGateway, WebSocketServer
 } from "@nestjs/websockets";
 
-import { UserService } from "../user/shared/user.service";
-import { User } from "../shared/user";
+import { UserService } from "../../core/services/user.service";
+import { User } from "../../core/models/user";
 import { Socket } from "socket.io";
-import { Message } from "../shared/message";
-import { ChatService } from "../chat/shared/chat.service";
+import { Message } from "../../core/models/message";
+import { ChatService } from "../../core/services/chat.service";
 
 @WebSocketGateway()
 export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {

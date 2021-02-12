@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post } from "@nestjs/common";
-import { ChatService } from "./shared/chat.service";
-import { ChatGateway } from "./chat.gateway";
+import { ChatService } from "../../core/services/chat.service";
+import { ChatGateway } from "../gateways/chat.gateway";
 
 @Controller('chat')
 
