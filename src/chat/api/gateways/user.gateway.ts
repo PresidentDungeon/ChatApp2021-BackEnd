@@ -10,13 +10,16 @@ import { User } from "../../core/models/user";
 import { Socket } from "socket.io";
 import { Message } from "../../core/models/message";
 import { ChatService } from "../../core/services/chat.service";
+import { Inject } from "@nestjs/common";
+import { IChatService, IChatServiceProvider } from "../../core/primary-ports/chat.service.interface";
+import { IUserService, IUserServiceProvider } from "../../core/primary-ports/user.service.interface";
 
 @WebSocketGateway()
 export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @WebSocketServer() server;
 
-  constructor(private userService: UserService, private chatService: ChatService) {}
+  constructor( @Inject(IUserServiceProvider) private userService: IUserService, @Inject(IChatServiceProvider) private chatService: IChatService) {}
 
   @SubscribeMessage('register')
   handleRegisterEvent(@MessageBody() user: User, @ConnectedSocket() client: Socket): void{

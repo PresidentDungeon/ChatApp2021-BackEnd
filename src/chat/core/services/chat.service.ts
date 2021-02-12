@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Message } from "../models/message";
 import { User } from "../models/user";
+import { IChatService } from "../primary-ports/chat.service.interface";
 
 @Injectable()
-export class ChatService {
+export class ChatService implements IChatService{
 
   private typingUsers: User[] = [];
   private storedMessages: Message[] = [];

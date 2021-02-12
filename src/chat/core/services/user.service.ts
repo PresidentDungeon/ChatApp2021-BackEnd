@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { User } from "../models/user";
+import { IUserService } from "../primary-ports/user.service.interface";
 
 @Injectable()
-export class UserService {
+export class UserService implements IUserService{
 
   private connectedUsers: User[] = []
 
