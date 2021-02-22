@@ -14,4 +14,8 @@ export interface IChatService{
 
   getRecentTypingUsers(room: string): User[]
 
+  // registerMessageTest()
+  //
+  // getMessage()
+
 }
