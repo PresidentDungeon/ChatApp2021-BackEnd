@@ -4,5 +4,5 @@ export interface Message{
   message: string;
   user: User;
   timestamp: Date;
-  isSystemInfo;
+  isSystemInfo: boolean;
 }

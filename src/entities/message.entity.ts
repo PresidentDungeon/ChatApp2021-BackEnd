@@ -1,15 +1,21 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { User } from "../chat/core/models/user";
+import UserEntity from "./user.entity";
 
 @Entity()
 class MessageEntity {
   @PrimaryGeneratedColumn()
   public id: number;
 
-  @Column()
-  public title: string;
+  @Index()
+  @ManyToOne(() => UserEntity, (user: UserEntity) => user.messages)
+  public user: UserEntity;
 
   @Column()
-  public content: string;
+  public timestamp: Date;
+
+  @Column()
+  public isSystemInfo: boolean;
 }
 
 export default MessageEntity;
