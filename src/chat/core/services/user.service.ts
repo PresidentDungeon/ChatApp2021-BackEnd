@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { User } from "../models/user";
 import { IUserService } from "../primary-ports/user.service.interface";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { ILike, Repository } from "typeorm";
 import UserEntity from "../../../entities/user.entity";
 
 @Injectable()
@@ -17,7 +17,7 @@ export class UserService implements IUserService{
 
   async registerUser(userToRegister: User): Promise<boolean>{
 
-    const user = await this.userRepository.findOne({ where: { username: userToRegister.username, room: userToRegister.room } });
+    const user = await this.userRepository.findOne({ where: `"username" ILIKE '${userToRegister.username}' AND "room" ILIKE '${userToRegister.room}'`});
     if(user){return false;}
 
     else{
