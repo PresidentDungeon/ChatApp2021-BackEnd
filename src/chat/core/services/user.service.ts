@@ -28,7 +28,6 @@ export class UserService implements IUserService{
   }
 
   async unregisterUser(id: string): Promise<any>{
-
     const user = await this.userRepository.findOne({ where: { id: id } });
     const deleteResponse = await this.userRepository.delete(id);
 
@@ -37,34 +36,36 @@ export class UserService implements IUserService{
   }
 
   async unregisterAllUsersByClient(id: string): Promise<any>{
-
     const user = await this.userRepository.findOne({ where: { id: id } });
     if (user) {const deleteResponse = await this.userRepository.delete({id: id}); if(deleteResponse.affected){return {removed: true, user: user};}}
     return {removed: false, user: null};
   }
 
-  getConnectedUsers(room: string): User[]{
-    return this.connectedUsers.filter((user) => user.room === room);
+  async getConnectedUsers(room: string): Promise<User[]>{
+    const connectedUsers: User[] = await this.userRepository.find({where: `"room" ILIKE '${room}'`});
+    return connectedUsers;
   }
 
-  getAllConnectedUsers(): User[]{
+  async getAllConnectedUsers(): Promise<User[]>{
+    const allConnectedUsers: User[] = await this.userRepository.find();
     return this.connectedUsers;
   }
 
-  checkForExistingUser(username: String): boolean{
-
-    if(this.connectedUsers.find(u => u.username.toLocaleLowerCase() === username.toLocaleLowerCase())){
-      return true;
-    }
+  async checkForExistingUser(username: String): Promise<boolean>{
+    const user = await this.userRepository.findOne({ where: `"username" ILIKE '${username}'`});
+    if(user){return true;}
     return false;
   }
 
-  getUserByClient(id: string): User{
-    return this.connectedUsers.find(user => user.id === id);
+  async getUserByClient(id: string): Promise<User>{
+    const user = await this.userRepository.findOne({ where: {id: id}});
+    return user;
   }
 
-  getActiveUsersCount(): number{
-    return this.connectedUsers.length;
+  async getActiveUsersCount(): Promise<number>{
+
+    const onlineAmount: number = await this.userRepository.count();
+    return onlineAmount;
   }
 
 }

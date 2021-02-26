@@ -11,7 +11,6 @@ import { Message } from "../../core/models/message";
 import { Inject } from "@nestjs/common";
 import { IChatService, IChatServiceProvider } from "../../core/primary-ports/chat.service.interface";
 import { IUserService, IUserServiceProvider } from "../../core/primary-ports/user.service.interface";
-import { async } from "rxjs";
 
 @WebSocketGateway()
 export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -24,33 +23,20 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleRegisterEvent(@MessageBody() user: User, @ConnectedSocket() client: Socket) {
 
     user.id = client.id;
-
-    //console.log("Before register", this.userService.getAllConnectedUsers());
-
-
-    let existingUser: User = this.userService.getUserByClient(client.id);
-
+    let existingUser: User = await this.userService.getUserByClient(client.id);
 
     const result = await this.userService.registerUser(user);
 
-
-
       if (result) {
-
         if (existingUser) {
-          let success: any = this.userService.unregisterUser(client.id);
-          if (success.removed) {
-            this.server.in(existingUser.room).emit('userLeave', success.user);
+            this.server.in(existingUser.room).emit('userLeave', existingUser);
             this.handleSystemInfo(existingUser, `${existingUser.username} left the chat!`);
-            //console.log("After delete", this.userService.getAllConnectedUsers());
             client.leaveAll();
-
-          }
         }
 
         client.join(user.room.toLowerCase());
         this.server.in(user.room).emit('userJoin', user);
-        this.server.emit('activeUsers', this.userService.getActiveUsersCount());
+        this.server.emit('activeUsers', await this.userService.getActiveUsersCount());
         this.handleSystemInfo(user, `${user.username} joined the chat!`);
         client.emit('registerResponse', { created: true, errorMessage: '', user: user })
       } else {
@@ -60,21 +46,17 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
           user: null
         })
       }
-
-
-    //console.log("After register", this.userService.getAllConnectedUsers());
-
-
   }
 
   @SubscribeMessage('unregister')
-  handleUnregisterEvent(@ConnectedSocket() client: Socket): void {
+  async handleUnregisterEvent(@ConnectedSocket() client: Socket){
 
-    this.userService.unregisterUser(client.id).then(success => {
-      if(success.removed){
-        this.server.emit('userLeave', success.user);
-        this.server.emit('activeUsers', this.userService.getActiveUsersCount());
-      }});
+    const success = await this.userService.unregisterUser(client.id);
+    if(success.removed){
+      const activeUsers: number = await this.userService.getActiveUsersCount();
+      this.server.emit('userLeave', success.user);
+      this.server.emit('activeUsers', activeUsers);
+    }
   }
 
   private handleSystemInfo(user: User, message: string){
@@ -88,12 +70,9 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 
   handleConnection(client: any, ...args: any[]): any {
-  //  console.log("connected:" + client.id);
   }
 
   async handleDisconnect(client: Socket) {
-    //console.log("disconnected:" + client.id);
-
     let success: any = await this.userService.unregisterAllUsersByClient(client.id);
     if(success.removed){this.server.emit('userLeave', success.user); this.handleSystemInfo(success.user, `${success.user.username} left the chat!`); this.server.emit('activeUsers', this.userService.getActiveUsersCount());}
   }

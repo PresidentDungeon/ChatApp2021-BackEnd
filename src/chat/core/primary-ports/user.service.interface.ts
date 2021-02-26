@@ -9,14 +9,14 @@ export interface IUserService{
 
   unregisterAllUsersByClient(id: string): Promise<any>;
 
-  getConnectedUsers(room: string): User[];
+  getConnectedUsers(room: string): Promise<User[]>;
 
-  getAllConnectedUsers(): User[];
+  getAllConnectedUsers(): Promise<User[]>;
 
-  checkForExistingUser(username: String): boolean;
+  checkForExistingUser(username: String): Promise<boolean>;
 
-  getUserByClient(id: string): User;
+  getUserByClient(id: string): Promise<User>;
 
-  getActiveUsersCount(): number;
+  getActiveUsersCount(): Promise<number>;
 
 }

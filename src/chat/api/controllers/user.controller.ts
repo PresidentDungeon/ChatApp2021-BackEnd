@@ -9,7 +9,7 @@ export class UserController {
   constructor( @Inject(IUserServiceProvider) private userService: IUserService, private server: UserGateway) {}
 
   @Get('amount')
-  GetConnectedUsersAmount(): number{
+  GetConnectedUsersAmount(): Promise<number>{
     return this.userService.getActiveUsersCount();
   }
 
@@ -19,7 +19,7 @@ export class UserController {
   }
 
   @Post()
-  SearchUser(@Body() data: any): boolean{
+  SearchUser(@Body() data: any): Promise<boolean>{
     return this.userService.checkForExistingUser(data.user.username);
   }
 

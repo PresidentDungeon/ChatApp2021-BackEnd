@@ -42,11 +42,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleDisconnect(client: Socket): any {
     //console.log("disconnected:" + client.id);
 
-    var user: User = this.userService.getUserByClient(client.id);
-    if (user) {
-      this.chatService.removeTypingUser(user.username);
-      this.server.in(user.room).emit('typers', this.chatService.getRecentTypingUsers(user.room));
-    }
+    this.userService.getUserByClient(client.id).then((user) => {
+      if (user) {
+        this.chatService.removeTypingUser(user.username);
+        this.server.in(user.room).emit('typers', this.chatService.getRecentTypingUsers(user.room));
+      }
+    })
   }
 
 }
