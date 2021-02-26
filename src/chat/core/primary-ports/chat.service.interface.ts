@@ -6,16 +6,12 @@ export interface IChatService{
 
   addMessage(message: Message): void
 
-  getAllMessages(room: string): Message[]
+  getAllMessages(room: string): Promise<Message[]>
 
-  addTypingUser(user: User)
+  addTypingUser(user: User): void
 
   removeTypingUser(id: string): void
 
   getRecentTypingUsers(room: string): User[]
-
-  // registerMessageTest()
-  //
-  // getMessage()
 
 }

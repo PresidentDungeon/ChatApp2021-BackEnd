@@ -10,20 +10,28 @@ import MessageEntity from "../../../entities/message.entity";
 export class ChatService implements IChatService{
 
   private typingUsers: User[] = [];
-  private storedMessages: Message[] = [];
 
   constructor(
     @InjectRepository(MessageEntity)
     private messageRepository: Repository<MessageEntity>
   ) {}
 
-  addMessage(message: Message): void{
-    this.storedMessages.push(message);
+  async addMessage(messageToRegister: Message){
+
+    const messageEntity: MessageEntity = {id: 0 ,message: messageToRegister.message, user: messageToRegister.user.username, room: messageToRegister.user.room, isSystemInfo: messageToRegister.isSystemInfo, timestamp: messageToRegister.timestamp}
+    const message = await this.messageRepository.create(messageEntity);
+    await this.messageRepository.save(message);
   }
 
-  getAllMessages(room: string): Message[]{
-    let message: Message[] = this.storedMessages.filter((c) => c.user.room.toLowerCase() === room.toLowerCase());
-    return message;
+  async getAllMessages(room: string): Promise<Message[]>{
+
+    const messagesEntity: MessageEntity[] = await this.messageRepository.find({ where: `room ILIKE '${room}'`})
+
+    const messages: Message[] = messagesEntity.map((messageEntity) => {
+      return {message: messageEntity.message, user: {id: '', username: messageEntity.user, room: messageEntity.room}, isSystemInfo: messageEntity.isSystemInfo, timestamp: messageEntity.timestamp}
+    })
+
+    return messages;
   }
 
   addTypingUser(user: User){
@@ -42,17 +50,5 @@ export class ChatService implements IChatService{
     let typingUsers: User[] = this.typingUsers.filter(user => user.room === room);
     return typingUsers.slice(0,5);
   }
-
-  // async registerMessageTest(){
-  //   const newMessage = await this.messageRepository.create({title: 'test', content: 'this'});
-  //   await this.messageRepository.save(newMessage);
-  //   console.log(newMessage);
-  // }
-  //
-  // async getMessage(){
-  //   const newMessage = await this.messageRepository.create({id: 1, title: 'test', content: 'this'});
-  //   await this.messageRepository.save(newMessage);
-  //   console.log(newMessage);
-  // }
 
 }

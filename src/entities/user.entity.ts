@@ -1,5 +1,6 @@
 import { Column, Entity, ManyToOne, OneToMany, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 import MessageEntity from "./message.entity";
+import { User } from "../chat/core/models/user";
 
 @Entity()
 class UserEntity {
@@ -11,9 +12,6 @@ class UserEntity {
 
   @Column()
   public room: string;
-
-  @OneToMany(() => MessageEntity, (messageEntity: MessageEntity) => messageEntity.user)
-  public messages?: MessageEntity[];
 }
 
 export default UserEntity;

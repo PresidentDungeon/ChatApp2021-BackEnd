@@ -7,9 +7,14 @@ class MessageEntity {
   @PrimaryGeneratedColumn()
   public id: number;
 
-  @Index()
-  @ManyToOne(() => UserEntity, (user: UserEntity) => user.messages)
-  public user: UserEntity;
+  @Column()
+  message: string;
+
+  @Column()
+  public user: string;
+
+  @Column()
+  public room: string;
 
   @Column()
   public timestamp: Date;

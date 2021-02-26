@@ -28,7 +28,7 @@ export class UserService implements IUserService{
   }
 
   async unregisterUser(id: string): Promise<any>{
-    const user = await this.userRepository.findOne({ where: { id: id } });
+    const user = await this.userRepository.findOne({ where: { id: id }});
     const deleteResponse = await this.userRepository.delete(id);
 
     if(deleteResponse.affected){return {removed: true, user: user};}
