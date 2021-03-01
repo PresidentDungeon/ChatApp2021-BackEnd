@@ -27,13 +27,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.in(message.user.room).emit('messages', message);
   }
 
-  @SubscribeMessage('typing')
-  handleTypeEvent(@MessageBody() data: any, @ConnectedSocket() client: Socket): void {
-    if(data.typing){this.chatService.addTypingUser(data.user);}
-    else{this.chatService.removeTypingUser(client.id);}
-    this.server.in(data.user.room).emit('typers', this.chatService.getRecentTypingUsers(data.user.room));
-  }
-
   handleConnection(client: Socket, ...args: any[]): any {
     //console.log("connected:" + client.id);
     //client.join
@@ -41,13 +34,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleDisconnect(client: Socket): any {
     //console.log("disconnected:" + client.id);
-
-    this.userService.getUserByClient(client.id).then((user) => {
-      if (user) {
-        this.chatService.removeTypingUser(user.username);
-        this.server.in(user.room).emit('typers', this.chatService.getRecentTypingUsers(user.room));
-      }
-    })
   }
 
 }

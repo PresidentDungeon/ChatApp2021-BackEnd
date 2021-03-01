@@ -19,4 +19,10 @@ export interface IUserService{
 
   getActiveUsersCount(): Promise<number>;
 
+  addTypingUser(user: User): Promise<boolean>;
+
+  removeTypingUser(id: string): Promise<boolean>;
+
+  getRecentTypingUsers(room: string): Promise<User[]>;
+
 }

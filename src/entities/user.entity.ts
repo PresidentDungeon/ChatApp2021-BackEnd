@@ -12,6 +12,10 @@ class UserEntity {
 
   @Column()
   public room: string;
+
+  @Column({default: false})
+  public isTyping: boolean;
+
 }
 
 export default UserEntity;

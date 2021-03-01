@@ -68,13 +68,31 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.in(user.room).emit('messages', systemMessage);
   }
 
+  @SubscribeMessage('typing')
+  async handleTypeEvent(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
+
+    if(data.typing){await this.userService.addTypingUser(data.user);}
+    else{await this.userService.removeTypingUser(client.id);}
+
+    const typingUsers = await this.userService.getRecentTypingUsers(data.user.room);
+
+    this.server.in(data.user.room).emit('typers', typingUsers);
+  }
 
   handleConnection(client: any, ...args: any[]): any {
   }
 
   async handleDisconnect(client: Socket) {
+
+    const updatedStatus = await this.userService.removeTypingUser(client.id)
+    if(updatedStatus){
+      const user = await this.userService.getUserByClient(client.id);
+      await this.userService.removeTypingUser(user.username);
+      this.server.in(user.room).emit('typers', await this.userService.getRecentTypingUsers(user.room));
+    }
+
     let success: any = await this.userService.unregisterAllUsersByClient(client.id);
-    if(success.removed){this.server.emit('userLeave', success.user); this.handleSystemInfo(success.user, `${success.user.username} left the chat!`); this.server.emit('activeUsers', this.userService.getActiveUsersCount());}
+    if(success.removed){this.server.emit('userLeave', success.user); this.handleSystemInfo(success.user, `${success.user.username} left the chat!`); this.server.emit('activeUsers', await this.userService.getActiveUsersCount());}
   }
 
 }

@@ -8,8 +8,6 @@ import UserEntity from "../../../entities/user.entity";
 @Injectable()
 export class UserService implements IUserService{
 
-  private connectedUsers: User[] = []
-
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>
@@ -41,6 +39,46 @@ export class UserService implements IUserService{
     return {removed: false, user: null};
   }
 
+  async addTypingUser(user: User){
+    const result = await this.userRepository.createQueryBuilder().update(UserEntity)
+      .set({ isTyping: true})
+      .where({ id: user.id })
+      .execute();
+
+    return true;
+  }
+
+  async removeTypingUser(id: string): Promise<boolean>{
+
+    const users = await this.userRepository.count({where: {id: id, isTyping: true}});
+
+    if(users > 0){
+        await this.userRepository.createQueryBuilder().update(UserEntity)
+        .set({ isTyping: false})
+        .where({ id: id })
+        .execute();
+
+      return true;
+    }
+    return false;
+  }
+
+  async getRecentTypingUsers(room: string): Promise<User[]>{
+
+    const maxTakeAmount = 5;
+
+    const result: User[] = await this.userRepository.find(
+      {
+        where: {isTyping: true, room: room},
+        take: maxTakeAmount
+      }
+    );
+
+    console.log(result);
+
+    return result;
+  }
+
   async getConnectedUsers(room: string): Promise<User[]>{
     const connectedUsers: User[] = await this.userRepository.find({where: `"room" ILIKE '${room}'`});
     return connectedUsers;
@@ -48,7 +86,7 @@ export class UserService implements IUserService{
 
   async getAllConnectedUsers(): Promise<User[]>{
     const allConnectedUsers: User[] = await this.userRepository.find();
-    return this.connectedUsers;
+    return allConnectedUsers;
   }
 
   async checkForExistingUser(username: String): Promise<boolean>{
