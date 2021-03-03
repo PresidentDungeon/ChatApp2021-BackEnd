@@ -3,7 +3,7 @@ import { Message } from "../models/message";
 import { IChatService } from "../primary-ports/chat.service.interface";
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from "typeorm";
-import MessageEntity from "../../../entities/message.entity";
+import MessageEntity from "../../infrastructure/data-source/entities/message.entity";
 
 @Injectable()
 export class ChatService implements IChatService{

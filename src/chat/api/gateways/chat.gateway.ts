@@ -6,10 +6,7 @@ import {
 } from "@nestjs/websockets";
 
 import { Message } from "../../core/models/message";
-import { ChatService } from "../../core/services/chat.service";
 import { Server, Socket } from "socket.io";
-import { User } from "../../core/models/user";
-import { UserService } from "../../core/services/user.service";
 import { IChatService, IChatServiceProvider } from "../../core/primary-ports/chat.service.interface";
 import { Inject } from "@nestjs/common";
 import { IUserService, IUserServiceProvider } from "../../core/primary-ports/user.service.interface";
@@ -28,12 +25,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleConnection(client: Socket, ...args: any[]): any {
-    //console.log("connected:" + client.id);
-    //client.join
   }
 
   handleDisconnect(client: Socket): any {
-    //console.log("disconnected:" + client.id);
   }
 
 }
