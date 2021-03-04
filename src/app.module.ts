@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ChatModule } from './chat/api/chat.module';
 import { UserModule } from './chat/api/user.module';
 import { ConfigModule } from '@nestjs/config';
-import { DatabaseModule } from './chat/infrastructure/data-source/postgres/database.module';
+import { DatabaseModule } from './database/database.module';
 import * as Joi from '@hapi/joi';
 
 @Module({

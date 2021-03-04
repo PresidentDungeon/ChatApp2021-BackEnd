@@ -3,7 +3,7 @@ import { User } from "../models/user";
 import { IUserService } from "../primary-ports/user.service.interface";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ILike, Repository } from "typeorm";
-import UserEntity from "../../infrastructure/data-source/entities/user.entity";
+import UserEntity from "../../../entities/user.entity";
 
 @Injectable()
 export class UserService implements IUserService{
@@ -73,6 +73,8 @@ export class UserService implements IUserService{
         take: maxTakeAmount
       }
     );
+
+    console.log(result);
 
     return result;
   }

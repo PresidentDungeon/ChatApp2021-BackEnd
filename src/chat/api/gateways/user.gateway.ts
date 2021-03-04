@@ -20,40 +20,43 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor( @Inject(IUserServiceProvider) private userService: IUserService, @Inject(IChatServiceProvider) private chatService: IChatService) {}
 
   @SubscribeMessage('register')
-  handleRegisterEvent(@MessageBody() user: User, @ConnectedSocket() client: Socket) {
+  async handleRegisterEvent(@MessageBody() user: User, @ConnectedSocket() client: Socket) {
 
     user.id = client.id;
+    let existingUser: User = await this.userService.getUserByClient(client.id);
 
-    this.userService.getUserByClient(client.id).then((existingUser) => {
-      this.userService.registerUser(user).then((result) => {
+    const result = await this.userService.registerUser(user);
 
-        if(result){
-          if(existingUser){
+      if (result) {
+        if (existingUser) {
             this.server.in(existingUser.room).emit('userLeave', existingUser);
             this.handleSystemInfo(existingUser, `${existingUser.username} left the chat!`);
             client.leaveAll();
-          }
-          client.join(user.room.toLowerCase());
-          this.server.in(user.room).emit('userJoin', user);
-          this.userService.getActiveUsersCount().then((userCount) => {this.server.emit('activeUsers', userCount)});
-          this.handleSystemInfo(user, `${user.username} joined the chat!`);
-          client.emit('registerResponse', {created: true, errorMessage: '', user: user});
         }
-        else{
-          client.emit('registerResponse', {created: false, errorMessage: 'User with the same name already exists', user: null});
-        }
-      })
-    })
+
+        client.join(user.room.toLowerCase());
+        this.server.in(user.room).emit('userJoin', user);
+        this.server.emit('activeUsers', await this.userService.getActiveUsersCount());
+        this.handleSystemInfo(user, `${user.username} joined the chat!`);
+        client.emit('registerResponse', { created: true, errorMessage: '', user: user })
+      } else {
+        client.emit('registerResponse', {
+          created: false,
+          errorMessage: 'User with same name already exists',
+          user: null
+        })
+      }
   }
 
   @SubscribeMessage('unregister')
   async handleUnregisterEvent(@ConnectedSocket() client: Socket){
 
-    this.userService.unregisterUser(client.id).then((success) => {
-      if(success.removed){
-        this.userService.getActiveUsersCount().then((activeUsers) => {this.server.emit('userLeave', success.user); this.server.emit('activeUsers', activeUsers);})
-      }
-    });
+    const success = await this.userService.unregisterUser(client.id);
+    if(success.removed){
+      const activeUsers: number = await this.userService.getActiveUsersCount();
+      this.server.emit('userLeave', success.user);
+      this.server.emit('activeUsers', activeUsers);
+    }
   }
 
   private handleSystemInfo(user: User, message: string){
@@ -66,43 +69,30 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('typing')
-  handleTypeEvent(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
+  async handleTypeEvent(@MessageBody() data: any, @ConnectedSocket() client: Socket) {
 
-    if(data.typing){
-        this.userService.addTypingUser(data.user).then(() => {
-          this.userService.getRecentTypingUsers(data.user.room).then((typingUsers) => {this.server.in(data.user.room).emit('typers', typingUsers);})
-        })
-    }
+    if(data.typing){await this.userService.addTypingUser(data.user);}
+    else{await this.userService.removeTypingUser(client.id);}
 
-    else{
-      this.userService.removeTypingUser(client.id).then(() => {
-        this.userService.getRecentTypingUsers(data.user.room).then((typingUsers) => {this.server.in(data.user.room).emit('typers', typingUsers);})
-      })
-    }
+    const typingUsers = await this.userService.getRecentTypingUsers(data.user.room);
+
+    this.server.in(data.user.room).emit('typers', typingUsers);
   }
 
   handleConnection(client: any, ...args: any[]): any {
   }
 
-  handleDisconnect(client: Socket) {
+  async handleDisconnect(client: Socket) {
 
-    this.userService.removeTypingUser(client.id).then((updatedStatus) => {
-      if(updatedStatus){
-        this.userService.getUserByClient(client.id).then((user) => {
-          this.userService.removeTypingUser(user.username).then(() => {
-            this.userService.getRecentTypingUsers(user.room).then((users) => {
-              this.server.in(user.room).emit('typers', users);
-            })});
-        });
-      }});
+    const updatedStatus = await this.userService.removeTypingUser(client.id)
+    if(updatedStatus){
+      const user = await this.userService.getUserByClient(client.id);
+      await this.userService.removeTypingUser(user.username);
+      this.server.in(user.room).emit('typers', await this.userService.getRecentTypingUsers(user.room));
+    }
 
-    this.userService.unregisterAllUsersByClient(client.id).then((success) => {
-      if(success.removed){
-        this.userService.getActiveUsersCount().then((count) => {
-          this.server.emit('userLeave', success.user);
-          this.handleSystemInfo(success.user, `${success.user.username} left the chat!`);
-          this.server.emit('activeUsers', count);})
-      }});
+    let success: any = await this.userService.unregisterAllUsersByClient(client.id);
+    if(success.removed){this.server.emit('userLeave', success.user); this.handleSystemInfo(success.user, `${success.user.username} left the chat!`); this.server.emit('activeUsers', await this.userService.getActiveUsersCount());}
   }
 
 }
