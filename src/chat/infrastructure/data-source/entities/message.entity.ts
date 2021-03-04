@@ -1,9 +1,7 @@
 import { Column, Entity, Index, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { User } from "../../../core/models/user";
-import UserEntity from "./user.entity";
 
 @Entity()
-class MessageEntity {
+export class MessageEntity {
   @PrimaryGeneratedColumn()
   public id: number;
 
@@ -22,7 +20,5 @@ class MessageEntity {
   @Column()
   public isSystemInfo: boolean;
 }
-
-export default MessageEntity;
 
 
