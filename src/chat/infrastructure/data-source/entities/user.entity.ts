@@ -1,7 +1,9 @@
 import { Column, Entity, ManyToOne, OneToMany, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
+import MessageEntity from "./message.entity";
+import { User } from "../../../core/models/user";
 
 @Entity()
-export class UserEntity {
+class UserEntity {
   @PrimaryColumn()
   public id: string;
 
@@ -15,5 +17,7 @@ export class UserEntity {
   public isTyping: boolean;
 
 }
+
+export default UserEntity;
 
 
