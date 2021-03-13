@@ -73,9 +73,7 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     if(data.typing){await this.userService.addTypingUser(data.user);}
     else{await this.userService.removeTypingUser(client.id);}
-
     const typingUsers = await this.userService.getRecentTypingUsers(data.user.room);
-
     this.server.in(data.user.room).emit('typers', typingUsers);
   }
 

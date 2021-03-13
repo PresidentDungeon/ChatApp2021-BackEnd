@@ -10,8 +10,8 @@ import { MessageEntity } from "../infrastucture/data-source/entities/message.ent
 import { UserEntity } from "../infrastucture/data-source/entities/user.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([MessageEntity]), TypeOrmModule.forFeature([UserEntity])],
-  providers: [ChatGateway, {provide: IChatServiceProvider, useClass: ChatService}, {provide: IUserServiceProvider, useClass: UserService}],
+  imports: [TypeOrmModule.forFeature([MessageEntity])],
+  providers: [ChatGateway, {provide: IChatServiceProvider, useClass: ChatService}],
   controllers: [ChatController],
   exports: [IChatServiceProvider]
 })
