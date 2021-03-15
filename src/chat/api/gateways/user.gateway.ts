@@ -25,27 +25,26 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
     user.id = client.id;
     let existingUser: User = await this.userService.getUserByClient(client.id);
 
-    const result = await this.userService.registerUser(user);
-
-      if (result) {
-        if (existingUser) {
-            this.server.in(existingUser.room).emit('userLeave', existingUser);
-            this.handleSystemInfo(existingUser, `${existingUser.username} left the chat!`);
-            client.leaveAll();
-        }
-
-        client.join(user.room.toLowerCase());
-        this.server.in(user.room).emit('userJoin', user);
-        this.server.emit('activeUsers', await this.userService.getActiveUsersCount());
-        this.handleSystemInfo(user, `${user.username} joined the chat!`);
-        client.emit('registerResponse', { created: true, errorMessage: '', user: user })
-      } else {
-        client.emit('registerResponse', {
-          created: false,
-          errorMessage: 'User with same name already exists',
-          user: null
-        })
+    try {
+      await this.userService.registerUser(user);
+      if(existingUser){
+        this.server.in(existingUser.room).emit('userLeave', existingUser);
+        this.handleSystemInfo(existingUser, `${existingUser.username} left the chat!`);
+        client.leaveAll();
       }
+      client.join(user.room.toLowerCase());
+      this.server.in(user.room).emit('userJoin', user);
+      this.server.emit('activeUsers', await this.userService.getActiveUsersCount());
+      this.handleSystemInfo(user, `${user.username} joined the chat!`);
+      client.emit('registerResponse', { created: true, errorMessage: '', user: user })
+    }
+    catch (e) {
+      client.emit('registerResponse', {
+        created: false,
+        errorMessage: 'User with same name already exists',
+        user: null
+      })
+    }
   }
 
   @SubscribeMessage('unregister')

@@ -16,7 +16,7 @@ export class UserService implements IUserService{
   async registerUser(userToRegister: User): Promise<boolean>{
 
     const user = await this.userRepository.findOne({ where: `"username" ILIKE '${userToRegister.username}' AND "room" ILIKE '${userToRegister.room}'`});
-    if(user){return false;}
+    if(user){throw new Error('Nickname already used!');}
 
     else{
       const newUser = await this.userRepository.create(userToRegister);
@@ -99,7 +99,6 @@ export class UserService implements IUserService{
   }
 
   async getActiveUsersCount(): Promise<number>{
-
     const onlineAmount: number = await this.userRepository.count();
     return onlineAmount;
   }
