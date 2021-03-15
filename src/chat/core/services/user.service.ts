@@ -74,8 +74,6 @@ export class UserService implements IUserService{
       }
     );
 
-    console.log(result);
-
     return result;
   }
 
