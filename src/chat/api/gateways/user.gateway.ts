@@ -50,11 +50,13 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('unregister')
   async handleUnregisterEvent(@ConnectedSocket() client: Socket){
 
-    const success = await this.userService.unregisterUser(client.id);
-    if(success.removed){
+    try {
+      const user: User = await this.userService.unregisterUser(client.id);
       const activeUsers: number = await this.userService.getActiveUsersCount();
-      this.server.emit('userLeave', success.user);
+      this.server.emit('userLeave', user);
       this.server.emit('activeUsers', activeUsers);
+    }
+    catch (e) {
     }
   }
 
@@ -88,8 +90,12 @@ export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.server.in(user.room).emit('typers', await this.userService.getRecentTypingUsers(user.room));
     }
 
-    let success: any = await this.userService.unregisterAllUsersByClient(client.id);
-    if(success.removed){this.server.emit('userLeave', success.user); this.handleSystemInfo(success.user, `${success.user.username} left the chat!`); this.server.emit('activeUsers', await this.userService.getActiveUsersCount());}
+    try {
+      let user: User = await this.userService.unregisterAllUsersByClient(client.id);
+      this.server.emit('userLeave', user); this.handleSystemInfo(user, `${user.username} left the chat!`); this.server.emit('activeUsers', await this.userService.getActiveUsersCount());
+    }
+    catch (e) {
+    }
   }
 
 }

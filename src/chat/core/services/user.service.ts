@@ -25,18 +25,20 @@ export class UserService implements IUserService{
     }
   }
 
-  async unregisterUser(id: string): Promise<any>{
+  async unregisterUser(id: string): Promise<User>{
     const user = await this.userRepository.findOne({ where: { id: id }});
     const deleteResponse = await this.userRepository.delete(id);
 
-    if(deleteResponse.affected){return {removed: true, user: user};}
-    return {removed: false, user: null};
+    if(deleteResponse.affected)
+      return user;
+    else
+      throw new Error('User could not be found or deleted');
   }
 
-  async unregisterAllUsersByClient(id: string): Promise<any>{
+  async unregisterAllUsersByClient(id: string): Promise<User>{
     const user = await this.userRepository.findOne({ where: { id: id } });
-    if (user) {const deleteResponse = await this.userRepository.delete({id: id}); if(deleteResponse.affected){return {removed: true, user: user};}}
-    return {removed: false, user: null};
+    if (user) {const deleteResponse = await this.userRepository.delete({id: id}); if(deleteResponse.affected){return user;}}
+    throw new Error('User could not be found or deleted');
   }
 
   async addTypingUser(user: User){

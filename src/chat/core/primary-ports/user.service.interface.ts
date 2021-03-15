@@ -5,9 +5,9 @@ export interface IUserService{
 
   registerUser(userToRegister: User): Promise<boolean>;
 
-  unregisterUser(id: string): Promise<any>;
+  unregisterUser(id: string): Promise<User>;
 
-  unregisterAllUsersByClient(id: string): Promise<any>;
+  unregisterAllUsersByClient(id: string): Promise<User>;
 
   getConnectedUsers(room: string): Promise<User[]>;
 
